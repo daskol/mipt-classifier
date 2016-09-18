@@ -81,9 +81,19 @@ celerybeat-schedule
 # virtualenv
 venv/
 ENV/
+env/
 
 # Spyder project settings
 .spyderproject
 
 # Rope project settings
 .ropeproject
+
+# Ignore all config-files
+*.cfg
+*.config
+miptclass_settings.py
+
+# Ignore database files
+*.db
+*.dat
