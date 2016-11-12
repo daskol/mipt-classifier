@@ -1,54 +1,21 @@
+
 {% extends 'admin/skeleton.html' %}
-{% block content %}
-<div class="container">
-  <h1>Brief Info</h1>
-
-  <p>
-  Total users: {{ stat['num_users'] }}
-  Total friends: {{ stat['num_friends'] }}
-  Total groups: {{ stat['num_groups'] }}
-  Total tokens: {{ stat['num_tokens'] }}</p>
-
-  <table class="table">
-    <tr><th>#</th><th>Metic</th><th>Value</th></tr>
-    <tr><td>1</td><td>Total users</td><td>{{ stat['num_users'] }}</td></tr>
-    <tr><td>2</td><td>Total friends</td><td>{{ stat['num_friends'] }}</td></tr>
-    <tr><td>3</td><td>Total groups</td><td>{{ stat['num_groups'] }}</td></tr>
-    <tr><td>4</td><td>Total tokens</td><td>{{ stat['num_tokens'] }}</td></tr>
-  </table>
-</div>
-
-<div class="container">
-  <h1>Access Tokens</h1>
-
-  {% if tokens %}
-  <table class="table table-striped">
-    <tr>
-      <th>#</th><th>User Id</th><th>Access Token</th><th>Expires In</th>
-    </tr>
-    {% for token in tokens %}
-    <tr>
-      <td>{{ loop.index }}</td>
-      <td><a href="https://vk.com/id{{ token[0] }}">{{ token[0] }}</td>
-      {% for value in token[1:] %}
-      <td>{{ value }}</td>
-      {% endfor %}
-    </tr>
-    {% endfor %}
-  </table>
-  {% else %}
-  <p>No valid tokens.</p>
-  {% endif %}
-</div>
-
-<div class="container">
-  <h1>Getting Tokens</h1>
-
-  <form class="form-inline" action="{% autoescape false %}{{ action }}{% endautoescape %}" method="POST">
-    <div class="form-group">
-      <label for="submit">Login in VKontakte:</label>
-      <input class="btn btn-default" name="submit" type="submit" value="Login">
+{% block body %}
+<nav class="navbar navbar-inverse">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">MiptClassfier</a>
     </div>
-  </form>
-</div>
-{% endblock content %}
+  </div>
+</nav>
+
+{% include 'admin/brief-info.tpl' %}
+{% include 'admin/access-tokens.tpl' %}
+{% include 'admin/form-get-token.tpl' %}
+{% endblock body %}
