@@ -1,0 +1,9 @@
+version: '2'
+services:
+  web:
+    command: gunicorn --user www-data --access-logfile - --error-logfile - -t 600 -b 0.0.0.0:8000 miptclass.wsgi:app
+    image: mipt-classifier
+    ports:
+      - "8000:8000"
+    volumes:
+      - "./miptclass_settings.py:/usr/src/app/miptclass_settings.py"
