@@ -1,8 +1,11 @@
+alembic
 click
 Flask
 itsdangerous
 Jinja2
+Mako
 MarkupSafe
+python-editor
 requests
 SQLAlchemy
 Werkzeug
