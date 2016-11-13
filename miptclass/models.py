@@ -103,3 +103,6 @@ class AccessToken(Base):
     token = Column(String(255), nullable=False)
     valid = Column(Boolean, default=True, nullable=False)
     expires_in = Column(DateTime, default=datetime.max, nullable=False)
+
+    def __repr__(self):
+        return '<AccessToken for %d due to %s>' % (self.id, self.expires_in)

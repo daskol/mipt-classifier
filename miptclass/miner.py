@@ -128,8 +128,10 @@ def mine_friends(uids, db, session, save):
             logging.error('error was revieved for uid %d: %s(%d)',
                     uid, response['error_code'], response['error_msg'])
         else:
-            user_friends = (filter_fields(row, friend_columns) for row in response['items'])
-            user_friends = (models.UserFriends(id=uid, friend_id=row['id']) for row in user_friends)
+            user_friends = (filter_fields(row, friend_columns)
+                            for row in response['items'])
+            user_friends = (models.UserFriends(id=uid, friend_id=row['id'])
+                            for row in user_friends)
 
             db.add_all(user_friends)
             db.commit()
