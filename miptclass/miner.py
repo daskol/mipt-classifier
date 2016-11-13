@@ -94,7 +94,7 @@ def mine_friends(uids, db, session, save):
     friends = Friends(session=session)
     friend_columns = frozenset(dir(models.UserFriends))
 
-    for i, uid in enumerate(tqdm(uids), unit='uid'):
+    for i, uid in enumerate(tqdm(uids, unit='uid')):
         response = friends.get(uid)
         user_friends = (filter_fields(row, friend_columns) for row in response['items'])
         user_friends = (models.UserFriends(id=uid, friend_id=row['id']) for row in user_friends)
