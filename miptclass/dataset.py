@@ -6,14 +6,15 @@ import logging
 
 from itertools import count
 from miptclass import models
+from miptclass.settings import ML_DATASET, ML_FRIEND_ENCODER
 from numpy import zeros
 from operator import itemgetter
 from os.path import realpath
 from scipy.io import savemat
 from scipy.sparse import csr_matrix, lil_matrix
+from sklearn.externals.joblib import dump
+from sklearn.preprocessing import LabelBinarizer
 from tqdm import tqdm
-
-DATASET_FILENAME = 'dataset.mat'
 
 
 def make_features_from_friend_list(friend_ids, freq_friends):
@@ -27,7 +28,7 @@ def make_features_from_friend_list(friend_ids, freq_friends):
 
     return feat
 
-def make_dataset(db, filename=DATASET_FILENAME):
+def make_dataset(db, filename, friend_enc_file):
     logging.info('start making dataset')
 
     cursor = db.execute("""
@@ -48,12 +49,16 @@ def make_dataset(db, filename=DATASET_FILENAME):
         HAVING COUNT(friend_id) > 4;
         """)
     freq_friend_ids = map(itemgetter('friend_id'), cursor.fetchall())
-    freq_friends = {
-        friend_id: i
-        for i, friend_id in zip(count(), freq_friend_ids)
-    }
-    freq_friend_count = len(freq_friends)
-    logging.info('total %d the most frequent friends', freq_friend_count)
+
+    logging.info('build and store friend encoder into `%s`', friend_enc_file)
+    friend_encoder = LabelBinarizer(sparse_output=True)
+    friend_encoder.fit(tuple(freq_friend_ids))
+    friend_encoder_size = friend_encoder.classes_.shape[0]
+
+    with open(friend_enc_file, 'wb') as fout:
+        dump(friend_encoder, fout)
+
+    logging.info('total %d the most frequent friends', friend_encoder_size)
 
     uid_count = db.execute("""
         SELECT
@@ -69,17 +74,9 @@ def make_dataset(db, filename=DATASET_FILENAME):
         JOIN users u ON u.id = uu.id;
         """)
     uids = map(itemgetter('id'), cursor.fetchall())
-    dataset = lil_matrix((uid_count, 1 + 1 + freq_friend_count), dtype=int)
+    dataset = lil_matrix((uid_count, 1 + 1 + friend_encoder_size), dtype=int)
 
     for i, uid in enumerate(tqdm(uids, total=uid_count, unit='uid')):
-        cursor = db.execute("""
-            SELECT
-                friend_id
-            FROM user_friends
-            WHERE id = :uid;
-            """, dict(uid=uid))
-        friend_ids = map(itemgetter('friend_id'), cursor.fetchall())
-
         cursor = db.execute("""
             SELECT
                 university_id
@@ -90,10 +87,21 @@ def make_dataset(db, filename=DATASET_FILENAME):
         is_mipt = any([university_id in mipt_ids
                        for university_id in university_ids])
 
-        row = zeros(1 + freq_friend_count + 1, dtype=int)
+        row = zeros(1 + 1 + friend_encoder_size, dtype=int)
         row[0] = uid
         row[1] = is_mipt
-        row[2:] = make_features_from_friend_list(friend_ids, freq_friends)
+
+        cursor = db.execute("""
+            SELECT
+                friend_id
+            FROM user_friends
+            WHERE id = :uid;
+            """, dict(uid=uid))
+        friend_ids = map(itemgetter('friend_id'), cursor.fetchall())
+        friend_ids = list(friend_ids)
+
+        if friend_ids:
+            row[2:] = friend_encoder.transform(friend_ids).sum(axis=0)
 
         dataset[i, :] = row
 
@@ -117,7 +125,7 @@ def test():
             format='%(asctime)s : %(levelname)s : %(message)s',
             level=logging.INFO)
 
-    dataset = make_dataset(models.db)
+    dataset = make_dataset(models.db, ML_DATASET, ML_FRIEND_ENCODER)
 
 
 if __name__ == '__main__':

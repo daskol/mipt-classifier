@@ -3,6 +3,7 @@
 
 import logging
 
+from miptclass.settings import ML_BASELINE, ML_DATASET, ML_SEED
 from numpy import array, nonzero
 from os.path import realpath
 from scipy.io import loadmat
@@ -12,22 +13,19 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 
 
-MODEL_BASELINE_PATH = 'var/models/baseline.pkl'
-SEED = None
-
 logging.basicConfig(
         format='%(asctime)s : %(levelname)s : %(message)s',
         level=logging.INFO)
 
 logging.info('loading and preparing datasets')
-dataset = loadmat('dataset.mat')['dataset'].T
+dataset = loadmat(ML_DATASET)['dataset'].T
 
 target = array(dataset[:, 1].todense()).reshape(-1)
 data = dataset[:, 2:]
 
 X_train, X_test, y_train, y_test = train_test_split(
     data, target,
-    random_state=SEED, test_size=0.20)
+    random_state=ML_SEED, test_size=0.20)
 
 logging.info('fit model')
 clf = MultinomialNB()
@@ -44,7 +42,7 @@ for line in report.splitlines():
 
 logging.info('acccuracy of classification is %f', score)
 
-filename = realpath(MODEL_BASELINE_PATH)
+filename = realpath(ML_BASELINE)
 logging.info('store model into `%s`', filename)
 dump(clf, filename)
 
