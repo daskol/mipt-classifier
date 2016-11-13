@@ -1,11 +1,8 @@
 #   encoding: utf8
 #   classifier.py
 
+from miptclass.settings import ML_BASELINE, ML_FRIEND_ENCODER
 from sklearn.externals.joblib import load
-
-
-FRIEND_ENCODER_FILENAME = 'var/models/friend-encoder.pkl'
-MODEL_BASELINE_PATH = 'var/models/baseline.pkl'
 
 
 def init_app(app):
@@ -33,5 +30,5 @@ class BaselineClassifier(object):
         return bool(result == 1)
 
     def __load(self):
-        self.enc = load(FRIEND_ENCODER_FILENAME)
-        self.clf = load(MODEL_BASELINE_PATH)
+        self.enc = load(ML_FRIEND_ENCODER)
+        self.clf = load(ML_BASELINE)
