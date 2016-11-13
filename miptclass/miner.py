@@ -97,8 +97,8 @@ def mine_friends(uids, db, session, save):
     for i, uid in enumerate(tqdm(uids, unit='uid')):
         response = friends.get(uid)
 
-        if all(('error_code' in response,
-                response['error_msg'] == 'Access denied: user deactivated')):
+        if all((response.get('error_code') == 15,
+                response.get('error_msg') == 'Access denied: user deactivated')):
 
             db.execute("""
                 UPDATE users
