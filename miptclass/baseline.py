@@ -4,11 +4,15 @@
 import logging
 
 from numpy import array, nonzero
+from os.path import realpath
 from scipy.io import loadmat
+from sklearn.externals.joblib import dump
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 
+
+MODEL_BASELINE_PATH = 'var/models/baseline.pkl'
 SEED = None
 
 logging.basicConfig(
@@ -39,3 +43,9 @@ for line in report.splitlines():
     logging.info(line)
 
 logging.info('acccuracy of classification is %f', score)
+
+filename = realpath(MODEL_BASELINE_PATH)
+logging.info('store model into `%s`', filename)
+dump(clf, filename)
+
+logging.info('done')
