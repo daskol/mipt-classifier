@@ -42,7 +42,7 @@ def mine_reference_groups(db):
     mine_friends(uids, db, session, save)
 
 def mine_groups(gids, db, session, save):
-    groups = Groups(session=session, logging=True)
+    groups = Groups(session=session)
     response = groups.getById(gids)
     column_names = frozenset(dir(models.User))
 
@@ -59,7 +59,7 @@ def mine_groups(gids, db, session, save):
         mine_group(group_id, db, session, save)
 
 def mine_group(gid, db, session, save):
-    groups = Groups(session=session, logging=True)
+    groups = Groups(session=session)
     response = groups.getAllMembers(gid)
     column_names = frozenset(dir(models.User))
     rows = [models.User(**filter_fields(item, column_names)) for item in response['items']]
@@ -67,7 +67,7 @@ def mine_group(gid, db, session, save):
     save(db, rows)
 
 def mine_users(uids, db, session, save):
-    users = Users(session=session, logging=True)
+    users = Users(session=session)
     response = users.getAllUsers(uids)
     user_columns = frozenset(dir(models.User))
     university_columns = frozenset(dir(models.University))
@@ -91,7 +91,7 @@ def mine_users(uids, db, session, save):
     save(db, universities)
 
 def mine_friends(uids, db, session, save):
-    friends = Friends(session=session, logging=logging)
+    friends = Friends(session=session)
     friend_columns = frozenset(dir(models.UserFriends))
 
     for i, uid in enumerate(tqdm(uids), unit='uid'):
