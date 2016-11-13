@@ -62,33 +62,52 @@ def mine_group(gid, db, session, save):
     groups = Groups(session=session)
     response = groups.getAllMembers(gid)
     column_names = frozenset(dir(models.User))
-    rows = [models.User(**filter_fields(item, column_names)) for item in response['items']]
+    rows = [models.User(**filter_fields(item, column_names))
+            for item in response['items']]
 
     save(db, rows)
 
 def mine_users(uids, db, session, save):
-    users = Users(session=session)
-    response = users.getAllUsers(uids)
     user_columns = frozenset(dir(models.User))
     university_columns = frozenset(dir(models.University))
     user_university_columns = frozenset(dir(models.UserUniversities))
 
-    save(db, (models.User(**filter_fields(item, user_columns)) for item in response))
+    logging.info('insert user profiles into database')
+    users = Users(session=session)
+    response = users.getAllUsers(uids)
+
+    save(db, (models.User(**filter_fields(item, user_columns))
+              for item in response))
+
+    logging.info('insert universities into datatabase')
 
     universities = filter(lambda x: 'universities' in x, response)
     universities = map(itemgetter('id', 'universities'), universities)
     universities, user_university = tee(universities)
     universities = reduce(lambda x, y: x + y[1], universities, [])
-    universities = (models.University(**filter_fields(item, university_columns)) for item in universities)
+    universities = (models.University(**filter_fields(item,
+                                                      university_columns))
+                    for item in universities)
 
     save(db, universities)
 
-    user_university = map(lambda x: zip_longest((x[0],), map(itemgetter('id'), x[1]), fillvalue=x[0]), user_university)
+    logging.info('insert user\'s universities into database')
+
+    user_university = map(lambda x:
+                          zip_longest((x[0],),
+                                      map(itemgetter('id'), x[1]),
+                                      fillvalue=x[0]),
+                          user_university)
     user_university = reduce(lambda x, y: x + list(y), user_university, [])
-    user_university = map(lambda x: dict(id=x[0], university_id=x[1]), user_university)
-    user_university = (models.UserUniversity(**filter_fields(item, user_university_columns)) for item in user_university)
+    user_university = map(lambda x: dict(id=x[0], university_id=x[1]),
+                          user_university)
+    user_university = (models.UserUniversities(**filter_fields(item,
+                                               user_university_columns))
+                       for item in user_university)
 
-    save(db, universities)
+    user_university = list(user_university)
+
+    save(db, user_university)
 
 def mine_friends(uids, db, session, save):
     friends = Friends(session=session)

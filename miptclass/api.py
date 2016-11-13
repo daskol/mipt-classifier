@@ -164,9 +164,10 @@ class Users(VkRequestRoutine):
 
     def getAllUsers(self, uids, fields=None):
         response = list()
+        iterator = iter(uids)
 
         while True:
-            chunk = list(islice(uids, 1000))
+            chunk = list(islice(iterator, 1000))
 
             if not chunk:
                 break
