@@ -33,8 +33,8 @@ class VkRequestRoutine(object):
         r = self.s.post(url, data=payload)
 
         self.rate += time()
-        logging.info('request `%s`', r.url)
-        logging.info('url rate %s sec', self.rate)
+        logging.debug('request `%s`', r.url)
+        logging.debug('url rate %s sec', self.rate)
 
         if r.status_code != codes.ok:
             pprint(r.content)
@@ -46,10 +46,10 @@ class VkRequestRoutine(object):
             return content['response']
 
         if content['error']['error_code'] == 6:  # Too many requests per second
-            logging.info('%d Too many requests per second: waiting %f seconds',
+            logging.debug('%d Too many requests per second: waiting %f seconds',
                         frame, VkRequestRoutine.REQUEST_DELAY)
             sleep(VkRequestRoutine.REQUEST_DELAY)
-            logging.info('%d Try recursively execute request', frame)
+            logging.debug('%d Try recursively execute request', frame)
             return self.request(url, payload, frame + 1)
 
         logging.error('request error: %r', content['error'])
