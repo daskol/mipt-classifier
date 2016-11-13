@@ -26,9 +26,21 @@ def save(db, rows):
         db.commit()
 
 def mine_reference_groups(db):
-    reference  = ['miptru']
     session = Session()
+
+    log('start mining reference group brief info')
+    reference  = ['miptru']
     mine_groups(reference, db, session, save)
+
+    log('build list of unique user identifiers')
+    cursor = db.execute('SELECT id FROM users WHERE deactivated is NULL;')
+    uids = map(itemgetter(0), cursor.fetchall())
+
+    log('start mining info about group members')
+    mine_users(deepcopy(uids), db, session, save)
+
+    log('start mining friend lists of group members')
+    mine_friends(uids, db, session, save)
 
 def mine_groups(gids, db, session, save):
     groups = Groups(session=session, logging=True)
@@ -46,14 +58,6 @@ def mine_groups(gids, db, session, save):
     for group_id in ids:
         log('process group #', group_id)
         mine_group(group_id, db, session, save)
-
-    log('start mining group members\' info')
-
-    cursor = db.execute('SELECT id FROM users WHERE deactivated is NULL;')
-    uids = map(itemgetter(0), cursor.fetchall())
-
-    mine_users(deepcopy(uids), db, session, save)
-    mine_friends(uids, db, session, save)
 
 def mine_group(gid, db, session, save):
     groups = Groups(session=session, logging=True)

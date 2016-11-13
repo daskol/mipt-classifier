@@ -53,6 +53,8 @@ class VkRequestRoutine(object):
             log('{0} Try recursively execute request...'.format(frame))
             return self.request(url, payload, frame + 1)
 
+        err('request error:', content['error'])
+
         return content['error']
 
 
