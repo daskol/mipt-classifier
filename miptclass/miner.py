@@ -12,7 +12,6 @@ from requests import Session, codes
 from time import time, sleep
 
 from miptclass import models
-from miptclass.common import *
 from miptclass.api import Groups, Users, Friends
 from miptclass.models import User, Group, UserFriends
 
@@ -28,18 +27,18 @@ def save(db, rows):
 def mine_reference_groups(db):
     session = Session()
 
-    log('start mining reference group brief info')
+    logging.log('start mining reference group brief info')
     reference  = ['miptru']
     mine_groups(reference, db, session, save)
 
-    log('build list of unique user identifiers')
+    logging.log('build list of unique user identifiers')
     cursor = db.execute('SELECT id FROM users WHERE deactivated is NULL;')
     uids = map(itemgetter(0), cursor.fetchall())
 
-    log('start mining info about group members')
+    logging.log('start mining info about group members')
     mine_users(deepcopy(uids), db, session, save)
 
-    log('start mining friend lists of group members')
+    logging.log('start mining friend lists of group members')
     mine_friends(uids, db, session, save)
 
 def mine_groups(gids, db, session, save):
@@ -53,10 +52,10 @@ def mine_groups(gids, db, session, save):
 
     save(db, rows)
 
-    log('start mining group members')
+    logging.log('start mining group members')
 
     for group_id in ids:
-        log('process group #', group_id)
+        logging.log('process group #', group_id)
         mine_group(group_id, db, session, save)
 
 def mine_group(gid, db, session, save):
@@ -97,7 +96,7 @@ def mine_friends(uids, db, session, save):
 
     for i, uid in enumerate(uids):
         if i % 100 == 0:
-            log('processing user #', i)
+            logging.log('processing user #', i)
 
         response = friends.get(uid)
         user_friends = (filter_fields(row, friend_columns) for row in response['items'])

@@ -20,4 +20,8 @@ def syncdb():
     models.Base.metadata.create_all(engine)
 
 def mine():
+    logging.basicConfig(
+            format='%(asctime)s : %(levelname)s : %(message)s',
+            level=logging.INFO)
+
     mine_reference_groups(models.db)

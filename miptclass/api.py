@@ -8,7 +8,6 @@ from pprint import pprint
 from time import time, sleep
 from itertools import islice
 from requests import Session, codes
-from miptclass.common import *
 
 
 class VkRequestRoutine(object):
@@ -17,10 +16,9 @@ class VkRequestRoutine(object):
     REQUEST_RATE = 0.433
     REQUEST_DELAY = 1.500
 
-    def __init__(self, session=None, token=None, version=VK_API_VERSION, logging=False):
+    def __init__(self, session=None, token=None, version=VK_API_VERSION):
         self.s = session if session else Session()
         self.v = version if version else VkRequestRoutine.VK_API_VERSION
-        self.log = log if logging else stub
         self.rate = 0.0
         self.token = token
         self.last_call = 0.0
@@ -35,8 +33,8 @@ class VkRequestRoutine(object):
         r = self.s.post(url, data=payload)
 
         self.rate += time()
-        self.log(r.url)
-        self.log('Url rate:', self.rate, 'sec')
+        logging.log('request `%s`', r.url)
+        logging.log('url rate %s sec', self.rate)
 
         if r.status_code != codes.ok:
             pprint(r.content)
@@ -48,12 +46,13 @@ class VkRequestRoutine(object):
             return content['response']
 
         if content['error']['error_code'] == 6:  # Too many requests per second
-            log('{} Too many requests per second: waiting {} seconds...'.format(frame, VkRequestRoutine.REQUEST_DELAY))
+            logging.log('%d Too many requests per second: waiting %f seconds',
+                        frame, VkRequestRoutine.REQUEST_DELAY))
             sleep(VkRequestRoutine.REQUEST_DELAY)
-            log('{0} Try recursively execute request...'.format(frame))
+            logging.log('%d Try recursively execute request', frame)
             return self.request(url, payload, frame + 1)
 
-        err('request error:', content['error'])
+        logging.error('request error: %r', content['error'])
 
         return content['error']
 
@@ -62,8 +61,8 @@ class Groups(VkRequestRoutine):
 
     URI = 'https://api.vk.com/method/groups.{0}'
 
-    def __init__(self, session=None, token=None, version=None, logging=False):
-        super(Groups, self).__init__(session=session, token=token, version=version, logging=logging)
+    def __init__(self, session=None, token=None, version=None):
+        super(Groups, self).__init__(session, token, version)
 
     def getAllMembers(self, gid):
         members = self.getMembers(gid)
@@ -145,8 +144,8 @@ class Users(VkRequestRoutine):
 
     URI = 'https://api.vk.com/method/users.{0}'
 
-    def __init__(self, session=None, token=None, version=None, logging=False):
-        super(Users, self).__init__(session, token, version, logging)
+    def __init__(self, session=None, token=None, version=None):
+        super(Users, self).__init__(session, token, version)
 
     def get(self, uids, fields=None):
         URL = self.URI.format('get')
@@ -181,8 +180,8 @@ class Friends(VkRequestRoutine):
 
     URI = 'https://api.vk.com/method/friends.{0}'
 
-    def __init__(self, session=None, token=None, version=None, logging=False):
-        super(Friends, self).__init__(session, token, version, logging)
+    def __init__(self, session=None, token=None, version=None):
+        super(Friends, self).__init__(session, token, version)
 
     def get(self, uid):
         URL = self.URI.format('get')
