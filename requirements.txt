@@ -8,4 +8,5 @@ MarkupSafe
 python-editor
 requests
 SQLAlchemy
+tqdm
 Werkzeug

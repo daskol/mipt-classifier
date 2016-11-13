@@ -3,13 +3,13 @@
 
 import logging
 
-from copy import deepcopy
 from itertools import zip_longest, tee
 from functools import partial, reduce
 from operator import itemgetter
 from pprint import pprint
 from requests import Session, codes
 from time import time, sleep
+from tqdm import tqdm
 
 from miptclass import models
 from miptclass.api import Groups, Users, Friends
@@ -33,10 +33,10 @@ def mine_reference_groups(db):
 
     logging.log('build list of unique user identifiers')
     cursor = db.execute('SELECT id FROM users WHERE deactivated is NULL;')
-    uids = map(itemgetter(0), cursor.fetchall())
+    uids = tuple(map(itemgetter(0), cursor.fetchall()))
 
     logging.log('start mining info about group members')
-    mine_users(deepcopy(uids), db, session, save)
+    mine_users(uids, db, session, save)
 
     logging.log('start mining friend lists of group members')
     mine_friends(uids, db, session, save)
@@ -94,10 +94,7 @@ def mine_friends(uids, db, session, save):
     friends = Friends(session=session, logging=logging)
     friend_columns = frozenset(dir(models.UserFriends))
 
-    for i, uid in enumerate(uids):
-        if i % 100 == 0:
-            logging.log('processing user #', i)
-
+    for i, uid in enumerate(tqdm(uids), unit='uid'):
         response = friends.get(uid)
         user_friends = (filter_fields(row, friend_columns) for row in response['items'])
         user_friends = (models.UserFriends(id=uid, friend_id=row['id']) for row in user_friends)
