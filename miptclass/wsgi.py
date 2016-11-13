@@ -1,12 +1,13 @@
 #   encoding: utf8
 #   wsgi.py
 
-from miptclass import cli, blueprints
+from miptclass import cli, blueprints, classifier
 from miptclass.app import app
 
 
-cli.init_app(app)
 blueprints.init_app(app)
+cli.init_app(app)
+classifier.init_app(app)
 
 if app.config.get('PROFILE', False):
     from werkzeug.contrib.profiler import ProfilerMiddleware
