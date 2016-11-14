@@ -19,7 +19,7 @@ class BaselineClassifier(object):
             self.__load()
 
     def __call__(self, friend_list):
-        if not self.clf or not self.env:
+        if not self.clf or not self.enc:
             self.__load()
 
         return self.__classify(friend_list)

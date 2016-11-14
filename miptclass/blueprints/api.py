@@ -4,7 +4,7 @@
 import logging
 
 from datetime import datetime, timedelta
-from flask import Blueprint, current_app, jsonify, request, redirect, url_for
+from flask import Blueprint, abort, current_app, jsonify, request, redirect, url_for
 from operator import itemgetter
 from requests import Session
 
