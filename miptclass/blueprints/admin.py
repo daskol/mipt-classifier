@@ -13,7 +13,7 @@ bp = Blueprint('admin', __name__)
 
 @bp.route('/', methods=['GET'])
 def index():
-    url = 'https://oauth.vk.com/authorize?client_id={0}&redirect_uri={1}&display={2}&scope={3}&response_type=code&v=5.53'.format(
+    url = 'https://oauth.vk.com/authorize?client_id={0}&redirect_uri={1}&display={2}&scope={3}&response_type=code&v=5.60'.format(
             settings.CLIENT_ID,
             settings.REDIRECT_URI,
             'page',

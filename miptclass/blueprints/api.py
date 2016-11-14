@@ -31,6 +31,7 @@ def index():
         client_id=settings.CLIENT_ID,
         client_secret=settings.CLIENT_SECRET,
         redirect_uri='http://139.59.159.51/mipt-classifier/api/access_token',
+        grant_type='client_credentials',
         code=request.args['code']
         ))
 
@@ -59,12 +60,14 @@ def classify(uid):
     if not token:
         return abort(404)
 
-    response = Friends(token=token.token).get(uid)
+    response = Friends(token=token.token).get(uid, remove_version=True)
 
     if 'error_code' in response and 'items' not in response:
         return jsonify(response), 200
 
-    user_friends = map(itemgetter('id'), response['items'])
+#   TODO: VK has a bug here fallback to old version here
+#    user_friends = map(itemgetter('id'), response['items'])
+    user_friends = map(itemgetter('uid'), response)
     user_friends = list(user_friends)
 
     is_mipt = current_app.classifier(user_friends)

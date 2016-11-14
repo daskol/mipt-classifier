@@ -12,7 +12,7 @@ from requests import Session, codes
 
 class VkRequestRoutine(object):
 
-    VK_API_VERSION = '5.53'
+    VK_API_VERSION = '5.60'
     REQUEST_RATE = 0.433
     REQUEST_DELAY = 1.500
 
@@ -184,16 +184,19 @@ class Friends(VkRequestRoutine):
     def __init__(self, session=None, token=None, version=None):
         super(Friends, self).__init__(session, token, version)
 
-    def get(self, uid):
+    def get(self, uid, remove_version=False):
         URL = self.URI.format('get')
 
         payload = {
-                'user_id': uid,
-                'order': 'hints',
-                'fields': 'nickname,domain',
-                'v': self.v,
-                'access_token': self.token,
-                }
+            'user_id': uid,
+            'order': 'hints',
+            'fields': 'nickname,domain',
+            'v': self.v,
+            'access_token': self.token,
+        }
+
+        if remove_version:
+            payload.pop('v')
 
         return self.request(URL, payload)
 
