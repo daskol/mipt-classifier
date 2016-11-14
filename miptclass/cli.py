@@ -8,20 +8,16 @@ from miptclass import models
 from miptclass.miner import mine_reference_groups
 
 
-def init_app(app):
-    cmds = app.cli.command()
-    for cmd in (syncdb, mine):
-        cmds(cmd)
-
-def syncdb():
-    logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-
-    engine = models.db.get_bind()
-    models.Base.metadata.create_all(engine)
-
-def mine():
+@click.group()
+def main():
     logging.basicConfig(
             format='%(asctime)s : %(levelname)s : %(message)s',
             level=logging.INFO)
 
+@main.command(help='Run webserver.')
+def webserver():
+    pass
+
+@main.command(help='Mine user profiles and groups from VK.')
+def mine():
     mine_reference_groups(models.db)

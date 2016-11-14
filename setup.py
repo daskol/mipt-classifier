@@ -50,9 +50,9 @@ def setup_package():
          classifiers=[line for line in CLASSIFIERS.split('\n') if line],
          packages=find_packages(),
          entry_points={
-#             'console_scripts': [
-#                'clf = miptclass.wsgi:app',
-#            ],
+             'console_scripts': [
+                 'mipt-classifier=miptclass.cli:main',
+            ],
          },
     )      
 
